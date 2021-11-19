@@ -6,7 +6,7 @@
     
         yarn  - for install all dependecies
     
-        yarn dev - for start a node server
+        yarn dev - for start the node server
     
 
 ---
