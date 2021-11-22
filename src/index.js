@@ -1,10 +1,9 @@
-const { request } = require('express');
 const express = require('express');
 const { v4: uuid } = require('uuid');
 
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
 const customers = [];
 
@@ -80,7 +79,7 @@ app.post("/withdraw", verifyExistsAccountCPF, (req, res) => {
     const balance = getBalance(customer.statement);
 
     if (balance < amount) {
-        return res.status(400).json({error: "Insufficient funds"})
+        return res.status(400).json({ error: "Insufficient funds" })
     }
 
     const statementOperation = {
@@ -91,9 +90,52 @@ app.post("/withdraw", verifyExistsAccountCPF, (req, res) => {
 
     customer.statement.push(statementOperation);
 
-    return res.status(201).json({message: "Withdraw successfully"})
+    return res.status(201).json({ message: "Withdraw successfully" })
 });
 
-app.listen(3000, (req, res) => {
-    console.log("Server started in port 3000!")
+app.get("/statement/date", verifyExistsAccountCPF, (req, res) => {
+    const { customer } = req;
+    const { date } = req.query;
+
+    const dateFormat = new Date(date + " 00:00");
+
+    const statement = customer.statement.filter(statement =>
+        statement.created_at.toDateString() === new Date(dateFormat).toDateString())
+
+    return res.json(statement);
+});
+
+app.put("/account", verifyExistsAccountCPF, (req, res) => {
+    const { name } = req.body;
+    const { customer } = req;
+
+    customer.name = name;
+
+    return res.status(201).json({ message: "The customer has been updated" })
+});
+
+app.get("/account", verifyExistsAccountCPF, (req, res) => {
+    const { customer } = req;
+
+    return res.status(200).json(customer)
+});
+
+app.delete("/account", verifyExistsAccountCPF, (req, res) => {
+    const { customer } = req;
+
+    customers.splice(customer, 1);
+
+    return res.status(200).json(customers);
+});
+
+app.get("/balance", verifyExistsAccountCPF, (req, res) => {
+    const { customer } = req;
+
+    const balance = getBalance(customer.statement)
+
+    return res.status(200).json(balance)
+});
+
+app.listen(3000, () => {
+    console.log("Server started in port 3000!");
 });
