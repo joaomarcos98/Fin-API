@@ -2,7 +2,7 @@
 
 
 
-### To start
+### Para começar
     
         yarn  - para instalar as dependências
     
